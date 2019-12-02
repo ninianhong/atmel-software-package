@@ -163,9 +163,9 @@
 
 /* ================== TWI bus definition ====================== */
 
-#define BOARD_TWI_BUS0      FLEXTWI4
+#define BOARD_TWI_BUS0      FLEXTWI0
 #define BOARD_TWI_BUS0_FREQ 400000
-#define BOARD_TWI_BUS0_PINS PINS_FLEXCOM4_TWI_IOS3
+#define BOARD_TWI_BUS0_PINS PINS_FLEXCOM0_TWI_IOS1
 #define BOARD_TWI_BUS0_MODE BUS_TRANSFER_MODE_DMA
 
 #define BOARD_TWI_BUS1      TWI1

@@ -66,6 +66,8 @@
 #include "power/act8945a.h"
 #endif
 
+#include "power/act8865.h"
+
 /*----------------------------------------------------------------------------
  *        Local constants
  *----------------------------------------------------------------------------*/
@@ -93,6 +95,7 @@ static const char* board_name = BOARD_NAME;
 
 ALIGNED(16384) static uint32_t tlb[4096];
 
+#if 0
 #ifdef CONFIG_HAVE_PMIC_ACT8945A
 static struct _act8945a act8945a = {
 	.bus = BOARD_ACT8945A_TWI_BUS,
@@ -105,6 +108,16 @@ static struct _act8945a act8945a = {
 };
 
 static bool act8945a_initialized = false;
+#endif /* CONFIG_HAVE_PMIC_ACT8945A */
+#endif
+
+#ifdef CONFIG_HAVE_PMIC_ACT8945A
+static struct _act8865 act8865 = {
+	.bus = BOARD_ACT8945A_TWI_BUS,
+	.addr = BOARD_ACT8945A_TWI_ADDR
+};
+
+static bool act8865_initialized = false;
 #endif /* CONFIG_HAVE_PMIC_ACT8945A */
 
 /*----------------------------------------------------------------------------
@@ -717,6 +730,7 @@ bool board_cfg_sdmmc(uint32_t periph_id)
 
 void board_cfg_pmic(void)
 {
+  /*
 #ifdef CONFIG_HAVE_PMIC_ACT8945A
 	if (act8945a_initialized)
 		return;
@@ -724,7 +738,7 @@ void board_cfg_pmic(void)
 	if (!act8945a_configure(&act8945a))
 		goto Fail;
 #if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
-	/* Set PMIC output 6 to 2.5V (VDD_LED) */
+	// Set PMIC output 6 to 2.5V (VDD_LED) 
 	if (!act8945a_set_regulator_voltage(&act8945a, 6, 2500))
 		goto Fail;
 	if (!act8945a_enable_regulator(&act8945a, 6, true))
@@ -736,4 +750,9 @@ void board_cfg_pmic(void)
 Fail:
 	trace_error("Error initializing ACT8945A PMIC\r\n");
 #endif
+*/
+    act8865_set_reg_voltage(&act8865, 0x60, 0x39);
+    act8865_set_reg_voltage(&act8865, 0x64, 0x39);
+    
+    return;
 }
