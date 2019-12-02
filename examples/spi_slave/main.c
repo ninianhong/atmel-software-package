@@ -195,6 +195,229 @@
 #endif
 
 /*----------------------------------------------------------------------------
+ *        Local struct for FPGA 
+ *----------------------------------------------------------------------------*/
+//note: if need to extend new path,
+#pragma pack(1)
+typedef struct _fpga_command
+{
+  	uint8_t t_revs0;      			//248-255
+  	uint8_t t_revs1;      			//240-247
+  	uint8_t t_revs2;      			//232-239
+  	uint8_t t_revs3;      			//224-231
+  	uint8_t t_revs4;      			//216-223
+  	uint8_t t_revs5;      			//208-215
+  	uint8_t t_revs6;      			//200-207
+        uint8_t t_revs7; 			//192-199
+	uint8_t t_revs8; 			//184-191
+	
+
+	uint8_t t6 : 1;				//176
+	uint8_t t7 : 1; 			//177
+	uint8_t t8 : 1;				//178
+	uint8_t t9 : 1;				//179
+	uint8_t t10 : 1;			//180
+	uint8_t t_revs9             : 1;	//181
+	uint8_t t_revs10            : 1;	//182
+	uint8_t t_revs11            : 1;	//183
+    
+/*------------------------------------------*/
+	
+	uint8_t dir_revers10        : 1;	//168
+	uint8_t dir_revers11        : 1;	//169
+ 	uint8_t t0 : 1;    			//170
+	uint8_t t1 : 1;				//171
+	uint8_t t2 : 1;  			//172 
+	uint8_t t3 : 1;				//173
+	uint8_t t4 : 1;				//174
+	uint8_t t5 : 1;				//175
+
+	uint8_t dir_revers9;			//160-167
+
+	uint8_t dir_port3_ssc3      : 1;	//67--152
+	uint8_t dir_revers2         : 1;
+	uint8_t dir_revers3         : 1;
+	uint8_t dir_revers4         : 1;	
+	uint8_t dir_revers5         : 1;
+	uint8_t dir_revers6	    : 1;
+	uint8_t dir_revers7         : 1;
+	uint8_t dir_revers8	    : 1;	//74--159
+
+	uint8_t dir_port2_fm36      : 1;	//59--144
+	uint8_t dir_port2_port3     : 1;	//60--145
+	uint8_t dir_port2_ssc2      : 1;	//61--146
+	uint8_t dir_port2_ssc3      : 1;	//62--147
+	uint8_t dir_port3_ssc0      : 1;	//63--148
+	uint8_t dir_port3_ssc1      : 1;	//64--149
+	uint8_t dir_port3_fm36      : 1;	//65--150
+	uint8_t dir_port3_ssc2      : 1;	//66--151
+
+	uint8_t dir_codec3_ssc1     : 1;	//51--136
+	uint8_t dir_codec3_fm36     : 1;	//52--137
+	uint8_t dir_codec3_port2    : 1;	//53--138
+	uint8_t dir_codec3_port3    : 1;	//54--139
+	uint8_t dir_codec3_ssc2     : 1;	//55--140
+	uint8_t dir_codec3_ssc3     : 1;	//56--141
+	uint8_t dir_port2_ssc0      : 1;	//57--142
+	uint8_t dir_port2_ssc1      : 1;	//58--143
+
+
+	uint8_t dir_codec2_ssc1     : 1;	//43--128
+	uint8_t dir_codec2_fm36     : 1;	//44--129
+	uint8_t dir_codec2_codec3   : 1;	//45--130
+	uint8_t dir_codec2_port2    : 1;	//46--131
+	uint8_t dir_codec2_port3    : 1;	//47--132
+	uint8_t dir_codec2_ssc2     : 1;	//48--133
+	uint8_t dir_codec2_ssc3     : 1;	//49--134
+	uint8_t dir_codec3_ssc0     : 1;	//50--135
+
+
+	uint8_t dir_port0_ssc3     : 1;		//35--120
+	uint8_t dir_port1_codec2   : 1;		//36--121
+	uint8_t dir_port1_codec3   : 1;		//37--122
+	uint8_t dir_port1_port2    : 1;		//38--123
+	uint8_t dir_port1_port3    : 1;		//39--124
+	uint8_t dir_port1_ssc2     : 1;		//40--125
+	uint8_t dir_port1_ssc3     : 1;		//41--126
+	uint8_t dir_codec2_ssc0    : 1;		//42--127
+
+
+	uint8_t dir_codec1_port3   : 1;		//27--112
+	uint8_t dir_codec1_ssc2    : 1;		//28--113
+	uint8_t dir_codec1_ssc3	   : 1;		//29--114
+	uint8_t dir_port0_codec2   : 1;		//30--115
+	uint8_t dir_port0_codec3   : 1;		//31--116
+	uint8_t dir_port0_port2    : 1;		//32--117
+	uint8_t dir_port0_port3    : 1;		//33--118
+	uint8_t dir_port0_ssc2     : 1;		//34--119
+
+
+	uint8_t dir_codec0_codec3   : 1;	//19--104
+	uint8_t dir_codec0_port2    : 1;	//20--105
+	uint8_t dir_codec0_port3    : 1;	//21--106
+	uint8_t dir_codec0_ssc2     : 1;	//22--107
+	uint8_t dir_codec0_ssc3	    : 1;	//23--108
+	uint8_t dir_codec1_codec2   : 1;	//24--109
+	uint8_t dir_codec1_codec3   : 1;	//25--110
+	uint8_t dir_codec1_port2    : 1;	//26--111
+
+	uint8_t dir_port0_port1    : 1;		//96
+	uint8_t dir_port0_ssc0     : 1;		//97
+	uint8_t dir_port0_ssc1     : 1;		//98
+	uint8_t dir_port0_fm36     : 1;		//99
+	uint8_t dir_port1_ssc0     : 1;  	//100
+    	uint8_t dir_port1_ssc1     : 1;  	//101
+    	uint8_t dir_port1_fm36     : 1;		//102
+	uint8_t dir_codec0_codec2  : 1; 	//103       
+
+	uint8_t dir_codec0_port1   : 1;		//88
+	uint8_t dir_codec0_codec1  : 1;		//89
+	uint8_t dir_codec0_ssc1    : 1;		//90
+	uint8_t dir_codec1_port0   : 1;		//91
+	uint8_t dir_codec1_port1   : 1;		//92
+	uint8_t dir_codec1_ssc0    : 1; 	//93 
+	uint8_t dir_codec1_ssc1    : 1;		//94
+	uint8_t dir_codec1_fm36    : 1;		//95
+
+
+	uint8_t oe_revers5	   : 1;		//80
+	uint8_t oe_revers6	   : 1;		//81
+	uint8_t oe_revers7	   : 1;		//82
+	uint8_t oe_revers8	   : 1;		//83
+	uint8_t oe_revers9	   : 1;		//84
+    	uint8_t dir_codec0_port0   : 1; 	//85	
+	uint8_t dir_codec0_fm36    : 1;		//86
+	uint8_t dir_codec0_ssc0    : 1;		//87
+
+	uint8_t oe_revers4;			//72-79
+/*----------------------------------------------------*/
+	uint8_t oe_port3_ssc1      : 1;		//64
+	uint8_t oe_port3_fm36      : 1;		//65
+	uint8_t oe_port3_ssc2      : 1;		//66
+	uint8_t oe_port3_ssc3      : 1;		//67
+	uint8_t oe_revers0	   : 1;		//68
+	uint8_t oe_revers1	   : 1;		//69
+	uint8_t oe_revers2	   : 1;		//70
+	uint8_t oe_revers3	   : 1;		//71
+
+	uint8_t oe_codec3_ssc3     : 1;		//56
+	uint8_t oe_port2_ssc0      : 1;		//57
+	uint8_t oe_port2_ssc1      : 1;		//58
+	uint8_t oe_port2_fm36      : 1;		//59
+	uint8_t oe_port2_port3     : 1;		//60
+	uint8_t oe_port2_ssc2      : 1;		//61
+	uint8_t oe_port2_ssc3      : 1;		//62
+	uint8_t oe_port3_ssc0      : 1;		//63
+
+	uint8_t oe_codec2_ssc2     : 1;		//48
+	uint8_t oe_codec2_ssc3     : 1;		//49
+	uint8_t oe_codec3_ssc0     : 1;		//50
+	uint8_t oe_codec3_ssc1     : 1;		//51
+	uint8_t oe_codec3_fm36     : 1;		//52
+	uint8_t oe_codec3_port2    : 1;		//53
+	uint8_t oe_codec3_port3    : 1;		//54
+	uint8_t oe_codec3_ssc2     : 1;		//55
+
+
+	uint8_t oe_port1_ssc2      : 1;		//40
+	uint8_t oe_port1_ssc3      : 1;		//41
+	uint8_t oe_codec2_ssc0     : 1;		//42
+	uint8_t oe_codec2_ssc1     : 1;		//43
+	uint8_t oe_codec2_fm36     : 1;		//44
+	uint8_t oe_codec2_codec3   : 1;		//45
+	uint8_t oe_codec2_port2    : 1;		//46
+	uint8_t oe_codec2_port3    : 1;		//47
+
+	uint8_t oe_port0_port2     : 1;		//32
+	uint8_t oe_port0_port3     : 1;		//33
+	uint8_t oe_port0_ssc2      : 1;		//34
+	uint8_t oe_port0_ssc3      : 1;		//35
+	uint8_t oe_port1_codec2	   : 1;		//36
+	uint8_t oe_port1_codec3	   : 1;		//37
+	uint8_t oe_port1_port2     : 1;		//38
+	uint8_t oe_port1_port3     : 1;		//39
+
+	uint8_t oe_codec1_codec2   : 1;		//24
+	uint8_t oe_codec1_codec3   : 1;		//25
+	uint8_t oe_codec1_port2    : 1;		//26
+	uint8_t oe_codec1_port3    : 1;		//27
+	uint8_t oe_codec1_ssc2 	   : 1;		//28
+	uint8_t oe_codec1_ssc3	   : 1;		//29
+	uint8_t oe_port0_codec2    : 1;		//30
+	uint8_t oe_port0_codec3    : 1;		//31
+
+
+    	uint8_t oe_port1_ssc1      : 1;  	//16
+    	uint8_t oe_port1_fm36      : 1;		//17
+	uint8_t oe_codec0_codec2   : 1;		//18
+	uint8_t oe_codec0_codec3   : 1;		//19
+	uint8_t oe_codec0_port2    : 1;		//20
+	uint8_t oe_codec0_port3    : 1;		//21
+	uint8_t oe_codec0_ssc2 	   : 1;		//22
+	uint8_t oe_codec0_ssc3	   : 1;		//23
+
+    uint8_t oe_codec1_ssc0 : 1;
+    uint8_t oe_codec1_ssc1 : 1;
+    uint8_t oe_codec1_fm36 : 1;
+    uint8_t oe_port0_port1 : 1;
+    uint8_t oe_port0_ssc0  : 1;
+    uint8_t oe_port0_ssc1  : 1;
+    uint8_t oe_port0_fm36  : 1;
+    uint8_t oe_port1_ssc0  : 1;
+
+    uint8_t oe_codec0_port0  : 1; // LSB
+    uint8_t oe_codec0_fm36   : 1;
+    uint8_t oe_codec0_ssc0   : 1;
+    uint8_t oe_codec0_port1  : 1;
+    uint8_t oe_codec0_codec1 : 1;
+    uint8_t oe_codec0_ssc1   : 1;
+    uint8_t oe_codec1_port0  : 1;
+    uint8_t oe_codec1_port1  : 1;
+
+} FPGA_COMMAND;
+#pragma pack()
+
+/*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
 
@@ -260,15 +483,16 @@ static void _spi_transfer(void)
 		.size = DMA_TRANS_SIZE,
 		.attr = BUS_BUF_ATTR_TX | BUS_SPI_BUF_ATTR_RELEASE_CS,
 	};
-	struct _buffer slave_buf = {
-		.data = spi_buffer_slave_rx,
-		.size = DMA_TRANS_SIZE,
-		.attr = BUS_BUF_ATTR_RX,
-	};
-	struct _callback _cb = {
-		.method = _spi_slave_transfer_callback,
-		.arg = 0,
-	};
+        
+	//struct _buffer slave_buf = {
+	//	.data = spi_buffer_slave_rx,
+	//	.size = DMA_TRANS_SIZE,
+	//	.attr = BUS_BUF_ATTR_RX,
+	//};
+	//struct _callback _cb = {
+	//	.method = _spi_slave_transfer_callback,
+	//	.arg = 0,
+	//};
 
 	for (i = 0; i < DMA_TRANS_SIZE; i++)
 		spi_buffer_master_tx[i] = i;
@@ -276,24 +500,24 @@ static void _spi_transfer(void)
 
 	bus_start_transaction(spi_master_dev.bus);
 
-	printf("Slave receiving...\r\n");
-	err = spid_transfer(&spi_slave_dev, &slave_buf, 1, &_cb);
-	if (err < 0) {
-		trace_error("SPI: SLAVE: transfer failed.\r\n");
-		return;
-	}
+	//printf("Slave receiving...\r\n");
+	//err = spid_transfer(&spi_slave_dev, &slave_buf, 1, &_cb);
+	//if (err < 0) {
+	//	trace_error("SPI: SLAVE: transfer failed.\r\n");
+	//	return;
+	//}
 
 	printf("Master sending...\r\n");
 	bus_transfer(spi_master_dev.bus, spi_master_dev.spi_dev.chip_select, &master_buf, 1, NULL);
 	bus_stop_transaction(spi_master_dev.bus);
 	spid_wait_transfer(&spi_slave_dev);
 
-	if (memcmp(spi_buffer_master_tx, spi_buffer_slave_rx, DMA_TRANS_SIZE)) {
-		trace_error("SPI: received data does not match!\r\n");
-		return;
-	}
+	//if (memcmp(spi_buffer_master_tx, spi_buffer_slave_rx, DMA_TRANS_SIZE)) {
+	//	trace_error("SPI: received data does not match!\r\n");
+	//	return;
+	//}
 
-	printf("Received data matched.\r\n");
+	//printf("Received data matched.\r\n");
 }
 
 /*----------------------------------------------------------------------------
@@ -308,20 +532,25 @@ static void _spi_transfer(void)
 int main(void)
 {
 	uint8_t key;
+        int k = 100000000;              //here delay sometimes for
+        struct _bus_iface iface;
+        FPGA_COMMAND fc;
 
 	/* Output example information */
 	console_example_info("SPI Slave Example");
 
-	/* Configure SPI slave */
+#if 0
+	// Configure SPI slave 
 	pio_configure(pins_spi_slave, ARRAY_SIZE(pins_spi_slave));
 	spid_configure(&spi_slave_dev);
 	spid_configure_master(&spi_slave_dev, false);
 	spid_configure_cs(&spi_slave_dev, 0, 0, 0, 0, SPID_MODE_0);
-
+#endif
+        
 	bus_configure_slave(spi_master_dev.bus, &spi_master_dev);
 
 	_display_menu();
-
+#if 1
 	while (1) {
 		key = console_get_char();
 		switch (key) {
@@ -337,4 +566,18 @@ int main(void)
 			break;
 		}
 	}
+
+#else        
+        while( 1 ) {
+          _spi_transfer();
+          
+          k = 10000;
+          while( k-- );
+          
+          //act8865_write_reg(&act8865, 0x64, 0x39);
+          
+          k = 10000;
+          while( k-- );
+        }
+#endif          
 }
