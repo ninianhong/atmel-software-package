@@ -166,7 +166,7 @@
  *        Local definitions
  *----------------------------------------------------------------------------*/
 
-#define DMA_TRANS_SIZE 256
+#define DMA_TRANS_SIZE 32
 
 #if defined(CONFIG_BOARD_SAMA5D2_XPLAINED)
 	#include "config_sama5d2-xplained.h"
@@ -429,6 +429,14 @@ CACHE_ALIGNED static uint8_t spi_buffer_slave_rx[DMA_TRANS_SIZE];
 
 /** Pio pins for SPI slave */
 static const struct _pin pins_spi_slave[] = SPI_SLAVE_PINS;
+	const struct _pin pins_spi_bus1[] = SPI_SLAVE_PINS;
+	const struct _bus_iface iface_bus1 = {
+		.type = BUS_TYPE_SPI,
+		.spi = {
+			.hw = BOARD_SPI_BUS1,
+		},
+		.transfer_mode = BOARD_SPI_BUS1_MODE,
+	};
 
 /** descriptor for SPI master */
 static const struct _bus_dev_cfg spi_master_dev = {
@@ -450,6 +458,7 @@ static struct _spi_desc spi_slave_dev = {
 	.transfer_mode = BUS_TRANSFER_MODE_DMA,
 };
 
+FPGA_COMMAND fc;
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
@@ -494,8 +503,10 @@ static void _spi_transfer(void)
 	//	.arg = 0,
 	//};
 
+        
 	for (i = 0; i < DMA_TRANS_SIZE; i++)
-		spi_buffer_master_tx[i] = i;
+		spi_buffer_master_tx[i] = 0;
+        spi_buffer_master_tx[26] = 0x10;
 	memset(spi_buffer_slave_rx, 0, DMA_TRANS_SIZE);
 
 	bus_start_transaction(spi_master_dev.bus);
@@ -534,14 +545,24 @@ int main(void)
 	uint8_t key;
         int k = 100000000;              //here delay sometimes for
         struct _bus_iface iface;
-        FPGA_COMMAND fc;
+
 
 	/* Output example information */
 	console_example_info("SPI Slave Example");
+        printf("fpga command size = %d",sizeof( FPGA_COMMAND ));
+        
+//        memset( (void *)&fc,0,sizeof( FPGA_COMMAND ) );
+//        fc.t1 = 1;
+        
+//        memset( spi_buffer_master_tx, 0, sizeof( spi_buffer_master_tx ));
+//        memcpy( spi_buffer_master_tx, (void *)&fc,sizeof( FPGA_COMMAND ) );
 
+
+
+	pio_configure(pins_spi_slave, ARRAY_SIZE(pins_spi_slave));
+        bus_configure(BUS(BUS_TYPE_SPI, 1), &iface_bus1);
 #if 0
 	// Configure SPI slave 
-	pio_configure(pins_spi_slave, ARRAY_SIZE(pins_spi_slave));
 	spid_configure(&spi_slave_dev);
 	spid_configure_master(&spi_slave_dev, false);
 	spid_configure_cs(&spi_slave_dev, 0, 0, 0, 0, SPID_MODE_0);
@@ -550,7 +571,7 @@ int main(void)
 	bus_configure_slave(spi_master_dev.bus, &spi_master_dev);
 
 	_display_menu();
-#if 1
+#if 0
 	while (1) {
 		key = console_get_char();
 		switch (key) {
@@ -569,12 +590,12 @@ int main(void)
 
 #else        
         while( 1 ) {
-          _spi_transfer();
           
           k = 10000;
           while( k-- );
           
           //act8865_write_reg(&act8865, 0x64, 0x39);
+          _spi_transfer();
           
           k = 10000;
           while( k-- );
