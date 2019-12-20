@@ -161,6 +161,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 /*----------------------------------------------------------------------------
  *        Local definitions
@@ -420,16 +421,16 @@ typedef struct _fpga_command
 /*----------------------------------------------------------------------------
  *        Local variables
  *----------------------------------------------------------------------------*/
-
+#pragma pack(1)
 /** data buffer for SPI master's receive */
 CACHE_ALIGNED static uint8_t spi_buffer_master_tx[DMA_TRANS_SIZE];
+#pragma pack()
 
 /** data buffer for SPI slave's transfer */
 CACHE_ALIGNED static uint8_t spi_buffer_slave_rx[DMA_TRANS_SIZE];
 
 /** Pio pins for SPI slave */
 static const struct _pin pins_spi_slave[] = SPI_SLAVE_PINS;
-	const struct _pin pins_spi_bus1[] = SPI_SLAVE_PINS;
 	const struct _bus_iface iface_bus1 = {
 		.type = BUS_TYPE_SPI,
 		.spi = {
@@ -448,7 +449,7 @@ static const struct _bus_dev_cfg spi_master_dev = {
 			.bs = 0,
 			.bct = 0,
 		},
-		.spi_mode = SPID_MODE_0,
+		.spi_mode = SPID_MODE_1,
 	},
 };
 
@@ -458,7 +459,22 @@ static struct _spi_desc spi_slave_dev = {
 	.transfer_mode = BUS_TRANSFER_MODE_DMA,
 };
 
+
+enum action_state {
+                    INVALID = -1,
+                    INPUTPOS,
+                    INPUTBIT,
+                    SENDDATA,
+                    IDLE
+} ACTION_S;
+
 FPGA_COMMAND fc;
+
+//human interface
+static uint8_t key;
+static int position=0,bit=0;   //the bit position in the map of FPGA registers;
+static int oe=0,dir=0;         //the clock path control 
+enum action_state current_state;
 /*----------------------------------------------------------------------------
  *        Local functions
  *----------------------------------------------------------------------------*/
@@ -470,8 +486,15 @@ static void _display_menu(void)
 {
 	printf("\r\nMenu :\r\n");
 	printf("------\r\n");
-	printf("  s: Perform SPI transfer start\r\n");
-	printf("  h: Display menu \r\n\r\n");
+
+	printf("  h: Display menu \r\n");
+        printf("  p: Set position\r\n");
+        printf("  b: Set bit offset\r\n");
+        printf("  t: Perform SPI transfer start\r\n");
+        printf("  r: Reset selected bit to 0.\r\n");
+        printf("  o: Select oe bit.\r\n");
+        printf("  d: Select dir bit.\r\n");
+        printf("  g: Flip the clock path control.\r\n");
 }
 
 static int _spi_slave_transfer_callback(void* arg, void* arg2)
@@ -483,7 +506,8 @@ static int _spi_slave_transfer_callback(void* arg, void* arg2)
 /**
  * \brief Start SPI slave transfer and SPI master receive.
  */
-static void _spi_transfer(void)
+
+static void _spi_transfer()
 {
 	int err;
 	int i;
@@ -505,8 +529,15 @@ static void _spi_transfer(void)
 
         
 	for (i = 0; i < DMA_TRANS_SIZE; i++)
-		spi_buffer_master_tx[i] = 0;
-        spi_buffer_master_tx[26] = 0x10;
+        {
+//            if (( i >= 10 ) && ( i <= 10  ))
+		spi_buffer_master_tx[i] = 0x0;
+//            else
+//                spi_buffer_master_tx[i] = 0; 
+        }
+        spi_buffer_master_tx[0] = 0x03;
+//        spi_buffer_master_tx[10] = 0x07;
+//        spi_buffer_master_tx[11] = 0xe0;
 	memset(spi_buffer_slave_rx, 0, DMA_TRANS_SIZE);
 
 	bus_start_transaction(spi_master_dev.bus);
@@ -520,8 +551,9 @@ static void _spi_transfer(void)
 
 	printf("Master sending...\r\n");
 	bus_transfer(spi_master_dev.bus, spi_master_dev.spi_dev.chip_select, &master_buf, 1, NULL);
+        bus_wait_transfer(spi_master_dev.bus);
 	bus_stop_transaction(spi_master_dev.bus);
-	spid_wait_transfer(&spi_slave_dev);
+	//spid_wait_transfer(&spi_slave_dev);
 
 	//if (memcmp(spi_buffer_master_tx, spi_buffer_slave_rx, DMA_TRANS_SIZE)) {
 	//	trace_error("SPI: received data does not match!\r\n");
@@ -530,6 +562,113 @@ static void _spi_transfer(void)
 
 	//printf("Received data matched.\r\n");
 }
+
+static void _spi_transfer_bit( int position , int bit, int val )
+{
+	int err;
+	int i;
+        
+        assert( position <= 31 );
+        assert( bit <= 7 );
+        
+	struct _buffer master_buf = {
+		.data = spi_buffer_master_tx,
+		.size = DMA_TRANS_SIZE,
+		.attr = BUS_BUF_ATTR_TX | BUS_SPI_BUF_ATTR_RELEASE_CS,
+	};
+               
+	for (i = 0; i < DMA_TRANS_SIZE; i++)
+        {
+		spi_buffer_master_tx[i] = 0x0;
+        }
+        printf("Bit value is %d...\r\n",val);
+
+        if( val == 1 )
+            spi_buffer_master_tx[position] = ( 1 << bit );
+        else
+            spi_buffer_master_tx[position] &= ~( 1 << bit );
+        printf("BYTE = 0x%x...\r\n",spi_buffer_master_tx[position]);
+	memset(spi_buffer_slave_rx, 0, DMA_TRANS_SIZE);
+
+	bus_start_transaction(spi_master_dev.bus);
+
+	printf("Master sending...\r\n");
+	bus_transfer(spi_master_dev.bus, spi_master_dev.spi_dev.chip_select, &master_buf, 1, NULL);
+        bus_wait_transfer(spi_master_dev.bus);
+	bus_stop_transaction(spi_master_dev.bus);
+}
+
+static void _spi_transfer_array( )
+{
+	int err;
+	int i;
+        
+       
+	struct _buffer master_buf = {
+		.data = spi_buffer_master_tx,
+		.size = DMA_TRANS_SIZE,
+		.attr = BUS_BUF_ATTR_TX | BUS_SPI_BUF_ATTR_RELEASE_CS,
+	};
+               
+
+	bus_start_transaction(spi_master_dev.bus);
+
+	printf("Master sending...\r\n");
+	bus_transfer(spi_master_dev.bus, spi_master_dev.spi_dev.chip_select, &master_buf, 1, NULL);
+        bus_wait_transfer(spi_master_dev.bus);
+	bus_stop_transaction(spi_master_dev.bus);
+}
+
+static void _spi_transfer_reset(  )
+{
+	int err;
+	int i;
+	struct _buffer master_buf = {
+		.data = spi_buffer_master_tx,
+		.size = DMA_TRANS_SIZE,
+		.attr = BUS_BUF_ATTR_TX | BUS_SPI_BUF_ATTR_RELEASE_CS,
+	};
+        
+	//struct _buffer slave_buf = {
+	//	.data = spi_buffer_slave_rx,
+	//	.size = DMA_TRANS_SIZE,
+	//	.attr = BUS_BUF_ATTR_RX,
+	//};
+	//struct _callback _cb = {
+	//	.method = _spi_slave_transfer_callback,
+	//	.arg = 0,
+	//};
+
+        
+	for (i = 0; i < DMA_TRANS_SIZE; i++)
+		spi_buffer_master_tx[i] = 0x0;
+        //spi_buffer_master_tx[3] = (1 << bit );
+        //spi_buffer_master_tx[3] = 0xff;
+	memset(spi_buffer_slave_rx, 0, DMA_TRANS_SIZE);
+
+	bus_start_transaction(spi_master_dev.bus);
+
+	//printf("Slave receiving...\r\n");
+	//err = spid_transfer(&spi_slave_dev, &slave_buf, 1, &_cb);
+	//if (err < 0) {
+	//	trace_error("SPI: SLAVE: transfer failed.\r\n");
+	//	return;
+	//}
+
+	printf("buffer Clean...\r\n");
+	bus_transfer(spi_master_dev.bus, spi_master_dev.spi_dev.chip_select, &master_buf, 1, NULL);
+        bus_wait_transfer(spi_master_dev.bus);
+	bus_stop_transaction(spi_master_dev.bus);
+	//spid_wait_transfer(&spi_slave_dev);
+
+	//if (memcmp(spi_buffer_master_tx, spi_buffer_slave_rx, DMA_TRANS_SIZE)) {
+	//	trace_error("SPI: received data does not match!\r\n");
+	//	return;
+	//}
+
+	//printf("Received data matched.\r\n");
+}
+
 
 /*----------------------------------------------------------------------------
  *        Global functions
@@ -540,25 +679,17 @@ static void _spi_transfer(void)
  *
  *  \return Unused (ANSI-C compatibility).
  */
+
 int main(void)
 {
-	uint8_t key;
         int k = 100000000;              //here delay sometimes for
         struct _bus_iface iface;
-
+        int temp_dir_bit,temp_oe_bit,temp_dir_pos,temp_oe_pos;
 
 	/* Output example information */
 	console_example_info("SPI Slave Example");
         printf("fpga command size = %d",sizeof( FPGA_COMMAND ));
         
-//        memset( (void *)&fc,0,sizeof( FPGA_COMMAND ) );
-//        fc.t1 = 1;
-        
-//        memset( spi_buffer_master_tx, 0, sizeof( spi_buffer_master_tx ));
-//        memcpy( spi_buffer_master_tx, (void *)&fc,sizeof( FPGA_COMMAND ) );
-
-
-
 	pio_configure(pins_spi_slave, ARRAY_SIZE(pins_spi_slave));
         bus_configure(BUS(BUS_TYPE_SPI, 1), &iface_bus1);
 #if 0
@@ -570,20 +701,76 @@ int main(void)
         
 	bus_configure_slave(spi_master_dev.bus, &spi_master_dev);
 
-	_display_menu();
-#if 0
+#if 1
 	while (1) {
+                _display_menu();
 		key = console_get_char();
 		switch (key) {
 		case 'H':
 		case 'h':
 			_display_menu();
 			break;
-		case 'S':
-		case 's':
-			_spi_transfer();
+		case 'P':
+		case 'p':
+                        printf("\r\nPlease input pos(0-31) :\r\n");
+                        console_get_integer( &position );
+                        printf("\r\nYou has selected swith[position][bit]:[%d][%d]\r\n",position,bit);
+                        printf("\r\nYou can entry b to select other bit\r\n");
+                        current_state = INPUTBIT;
 			break;
+                case 'B':
+                case 'b':
+                        printf("\r\nPlease input bit(0-7) :\r\n");
+                        console_get_integer( &bit );
+                        printf("\r\nYou has selected swith[position][bit]:[%d][%d]\r\n",position,bit);
+                        break;
+                  
+                case 'C':
+                case 'c':                         
+                        _spi_transfer_bit( position, bit,0 );
+                        printf("\r\nPlease hit r key to Reset FPGA\r\n");
+                        break;
+                case 't':
+                case 'T':
+                        printf("\r\nsend data to FPGA[%d][%d]\r\n",position,bit);
+                        _spi_transfer_bit( position, bit,1 );
+                        printf("\r\nPlease hit r key to Reset FPGA\r\n");
+                        break;
+                case 'R':
+                case 'r':
+                        printf("\r\nReset FPGA Buffer\r\n");
+                        _spi_transfer_reset();
+                        break; 
+                case 'O':
+                case 'o':
+                        printf("\r\nPlease select OE bit(0-84) :\r\n");
+                        console_get_integer( &oe );
+                        printf("\r\nYou has selected clock[dir][oe]:[%d][%d]\r\n",dir,oe);
+                        break;
+                case 'D':
+                case 'd':
+                        printf("\r\nPlease select DIR bit(0-84) :\r\n");
+                        console_get_integer( &dir );
+                        printf("\r\nYou has selected clock[dir][oe]:[%d][%d]\r\n",dir,oe);
+                        break;
+                case 'G':
+                case 'g':
+                       
+                        printf("\r\nFlip Clock path[dir][oe]:[%d][%d]\r\n",dir,oe);
+                        temp_dir_bit = 7 -( ( dir + 85 ) % 8 );
+                        temp_dir_pos = ( dir + 85 ) / 8;
+                        temp_oe_bit = 7 -( ( oe  ) % 8 );
+                        temp_oe_pos = ( oe  ) / 8;
+                        
+                        for ( int i = 0; i < DMA_TRANS_SIZE; i++)
+                                spi_buffer_master_tx[i] = 0x0;
+                        spi_buffer_master_tx[temp_dir_pos] = ( 1 << temp_dir_bit);
+                        spi_buffer_master_tx[temp_oe_pos] &= ~( 1 << temp_oe_bit);                     
+                        _spi_transfer_array( );
+                        
+                        break;
 		default:
+                        _spi_transfer();
 			break;
 		}
 	}

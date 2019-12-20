@@ -106,7 +106,7 @@ void board_cfg_spi_bus(void)
 		.spi = {
 			.hw = BOARD_SPI_BUS1,
 		},
-		.transfer_mode = BOARD_SPI_BUS1_MODE,
+		.transfer_mode = BUS_TRANSFER_MODE_ASYNC,//,BOARD_SPI_BUS1_MODE
 	};
 	pio_configure(pins_spi_bus1, ARRAY_SIZE(pins_spi_bus1));
 	bus_configure(BUS(BUS_TYPE_SPI, 1), &iface_bus1);

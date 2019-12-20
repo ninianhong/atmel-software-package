@@ -13,7 +13,7 @@
 #else                                                   //define for fpga
 #define SPI_MASTER_BUS BUS(BUS_TYPE_SPI, 1)
 #define SPI_MASTER_CS 0
-#define SPI_MASTER_BITRATE 1000
+#define SPI_MASTER_BITRATE 100
 #define SPI_MASTER_PINS PINS_SPI1_NPCS0_IOS3
 #endif
 
