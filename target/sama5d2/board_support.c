@@ -62,6 +62,8 @@
 
 #include "board_support.h"
 
+#define CONFIG_HAVE_PMIC_ACT8945A
+
 #ifdef CONFIG_HAVE_PMIC_ACT8945A
 #include "power/act8945a.h"
 #endif
@@ -751,8 +753,8 @@ Fail:
 	trace_error("Error initializing ACT8945A PMIC\r\n");
 #endif
 */
-    act8865_set_reg_voltage(&act8865, 0x60, 0x39);
-    act8865_set_reg_voltage(&act8865, 0x64, 0x39);
+//    act8865_set_reg_voltage(&act8865, 0x60, 0x39);
+//    act8865_set_reg_voltage(&act8865, 0x64, 0x39);
     
     return;
 }

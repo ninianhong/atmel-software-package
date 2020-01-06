@@ -163,6 +163,8 @@
 #include <string.h>
 #include <assert.h>
 
+#include "uif_object.h"
+#include "uif_xc3s50an.h"
 /*----------------------------------------------------------------------------
  *        Local definitions
  *----------------------------------------------------------------------------*/
@@ -195,12 +197,13 @@
 	#error Unsupported board!
 #endif
 
+
 /*----------------------------------------------------------------------------
  *        Local struct for FPGA 
  *----------------------------------------------------------------------------*/
 //note: if need to extend new path,
 #pragma pack(1)
-typedef struct _fpga_command
+typedef struct _fpga_command_backup
 {
   	uint8_t t_revs0;      			//248-255
   	uint8_t t_revs1;      			//240-247
@@ -415,7 +418,7 @@ typedef struct _fpga_command
     uint8_t oe_codec1_port0  : 1;
     uint8_t oe_codec1_port1  : 1;
 
-} FPGA_COMMAND;
+} FPGA_COMMAND_BK;
 #pragma pack()
 
 /*----------------------------------------------------------------------------
@@ -424,6 +427,11 @@ typedef struct _fpga_command
 #pragma pack(1)
 /** data buffer for SPI master's receive */
 CACHE_ALIGNED static uint8_t spi_buffer_master_tx[DMA_TRANS_SIZE];
+#pragma pack()
+
+#pragma pack(1)
+/** data buffer for SPI master's receive */
+CACHE_ALIGNED static uint8_t spi_buffer_master_tx_protocol[4]={0x01,0x0,0x0,0xff};
 #pragma pack()
 
 /** data buffer for SPI slave's transfer */
@@ -468,7 +476,7 @@ enum action_state {
                     IDLE
 } ACTION_S;
 
-FPGA_COMMAND fc;
+FPGA_COMMAND cmd;
 
 //human interface
 static uint8_t key;
@@ -512,8 +520,13 @@ static void _spi_transfer()
 	int err;
 	int i;
 	struct _buffer master_buf = {
+#if 1
 		.data = spi_buffer_master_tx,
 		.size = DMA_TRANS_SIZE,
+#else
+                .data = spi_buffer_master_tx_protocol,
+                .size = sizeof(spi_buffer_master_tx_protocol),
+#endif
 		.attr = BUS_BUF_ATTR_TX | BUS_SPI_BUF_ATTR_RELEASE_CS,
 	};
         
@@ -530,13 +543,13 @@ static void _spi_transfer()
         
 	for (i = 0; i < DMA_TRANS_SIZE; i++)
         {
-//            if (( i >= 10 ) && ( i <= 10  ))
+//            if (( i >= 10 ) && ( i <= 21  ))
 		spi_buffer_master_tx[i] = 0x0;
 //            else
 //                spi_buffer_master_tx[i] = 0; 
         }
-        spi_buffer_master_tx[0] = 0x03;
-//        spi_buffer_master_tx[10] = 0x07;
+        spi_buffer_master_tx[20] = 0x01;
+        spi_buffer_master_tx[18] = 0x01;
 //        spi_buffer_master_tx[11] = 0xe0;
 	memset(spi_buffer_slave_rx, 0, DMA_TRANS_SIZE);
 
@@ -619,6 +632,27 @@ static void _spi_transfer_array( )
 	bus_stop_transaction(spi_master_dev.bus);
 }
 
+static void _spi_transfer_fpga_cmd( FPGA_COMMAND* cmd )
+{
+	int err;
+	int i;
+        
+       
+	struct _buffer master_buf = {
+		.data = (uint8_t *)cmd,
+		.size = sizeof( FPGA_COMMAND ),
+		.attr = BUS_BUF_ATTR_TX | BUS_SPI_BUF_ATTR_RELEASE_CS,
+	};
+               
+
+	bus_start_transaction(spi_master_dev.bus);
+
+	printf("Master sending...\r\n");
+	bus_transfer(spi_master_dev.bus, spi_master_dev.spi_dev.chip_select, &master_buf, 1, NULL);
+        bus_wait_transfer(spi_master_dev.bus);
+	bus_stop_transaction(spi_master_dev.bus);
+}
+
 static void _spi_transfer_reset(  )
 {
 	int err;
@@ -685,10 +719,12 @@ int main(void)
         int k = 100000000;              //here delay sometimes for
         struct _bus_iface iface;
         int temp_dir_bit,temp_oe_bit,temp_dir_pos,temp_oe_pos;
+        //FPGA_COMMAND cmd;
 
 	/* Output example information */
 	console_example_info("SPI Slave Example");
         printf("fpga command size = %d",sizeof( FPGA_COMMAND ));
+        memset( (void *)&cmd, 0 , sizeof( FPGA_COMMAND ));
         
 	pio_configure(pins_spi_slave, ARRAY_SIZE(pins_spi_slave));
         bus_configure(BUS(BUS_TYPE_SPI, 1), &iface_bus1);
@@ -754,8 +790,7 @@ int main(void)
                         printf("\r\nYou has selected clock[dir][oe]:[%d][%d]\r\n",dir,oe);
                         break;
                 case 'G':
-                case 'g':
-                       
+                case 'g':                       
                         printf("\r\nFlip Clock path[dir][oe]:[%d][%d]\r\n",dir,oe);
                         temp_dir_bit = 7 -( ( dir + 85 ) % 8 );
                         temp_dir_pos = ( dir + 85 ) / 8;
@@ -769,6 +804,13 @@ int main(void)
                         _spi_transfer_array( );
                         
                         break;
+                case 'Z':
+                case 'z':
+                        set_i2s_clk_path( 0,&cmd,1, 0 );
+                        
+                        break;
+                case 'V':
+                case 'v':                        
 		default:
                         _spi_transfer();
 			break;

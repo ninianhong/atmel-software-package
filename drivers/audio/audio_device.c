@@ -92,7 +92,7 @@ static void _configure_ssc(struct _audio_desc *desc)
 		break;
 #ifdef CONFIG_HAVE_AUDIO_WM8904
 	case AUDIO_CODEC_WM8904:
-		wm8904_configure(&desc->device.ssc.codec->wm8904);
+		//wm8904_configure(&desc->device.ssc.codec->wm8904);
 		break;
 #endif
 #ifdef CONFIG_HAVE_AUDIO_WM8731

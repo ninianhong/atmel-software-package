@@ -304,7 +304,7 @@ extern int main(void)
 	console_example_info("Audio Recorder Example");
 
 	/* Configure Audio play*/
-	audio_configure(&audio_play_device);
+	audio_configure(&audio_record_device_ssc0);
 
 	/* Configure Audio record */
 	audio_configure(&audio_record_device);
