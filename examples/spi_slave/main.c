@@ -163,6 +163,9 @@
 #include <string.h>
 #include <assert.h>
 
+#include  <USBD.h>
+#include  <CDCDSerialDriver.h>
+
 #include "uif_object.h"
 #include "uif_xc3s50an.h"
 /*----------------------------------------------------------------------------
@@ -503,6 +506,7 @@ static void _display_menu(void)
         printf("  o: Select oe bit.\r\n");
         printf("  d: Select dir bit.\r\n");
         printf("  g: Flip the clock path control.\r\n");
+        printf("  z: send FPGA Command.\r\n");        
 }
 
 static int _spi_slave_transfer_callback(void* arg, void* arg2)
@@ -548,9 +552,16 @@ static void _spi_transfer()
 //            else
 //                spi_buffer_master_tx[i] = 0; 
         }
-        spi_buffer_master_tx[20] = 0x01;
-        spi_buffer_master_tx[18] = 0x01;
-//        spi_buffer_master_tx[11] = 0xe0;
+        spi_buffer_master_tx[31] = 0x05;
+        spi_buffer_master_tx[30] = 0x10;        
+//        spi_buffer_master_tx[29] = 0;
+        spi_buffer_master_tx[28] = 4;
+        spi_buffer_master_tx[27] = 6;
+        spi_buffer_master_tx[26] = 3;
+        spi_buffer_master_tx[25] = 1;
+        spi_buffer_master_tx[24] = 5; 
+        spi_buffer_master_tx[23] = 12; 
+        spi_buffer_master_tx[22] = 4; 
 	memset(spi_buffer_slave_rx, 0, DMA_TRANS_SIZE);
 
 	bus_start_transaction(spi_master_dev.bus);
@@ -720,6 +731,7 @@ int main(void)
         struct _bus_iface iface;
         int temp_dir_bit,temp_oe_bit,temp_dir_pos,temp_oe_pos;
         //FPGA_COMMAND cmd;
+        uint8_t  usb_state, usb_state_saved ;
 
 	/* Output example information */
 	console_example_info("SPI Slave Example");
@@ -806,8 +818,40 @@ int main(void)
                         break;
                 case 'Z':
                 case 'z':
-                        set_i2s_clk_path( 0,&cmd,1, 0 );
+                        printf("\r\nSend FPGA Command...\r\n");                        
+//                        port0-->others                    
+//                        set_i2s_clk_path( 0,&cmd,0, 0 );
+//                        set_i2s_clk_path( 1,&cmd,1, 1 );
+//                        set_i2s_clk_path( 2,&cmd,0, 1 );
+//                        set_i2s_clk_path( 3,&cmd,0, 1 );
+//                        set_i2s_clk_path( 4,&cmd,0, 1 );
+//                        set_i2s_clk_path( 5,&cmd,0, 1 );
+
+//                      fm36-->codec0                   
+                        set_i2s_clk_path( 0,&cmd,0, 0 );
+                        set_i2s_clk_path( 1,&cmd,1, 0 );
+                        set_i2s_clk_path( 2,&cmd,0, 1 );
+                        set_i2s_clk_path( 3,&cmd,0, 1 );
+                        set_i2s_clk_path( 4,&cmd,0, 1 );
+                        set_i2s_clk_path( 5,&cmd,0, 1 );
                         
+//                      codec2(r752)-->codec3(r744)
+//                        set_i2s_clk_path( 45,&cmd,1, 0 );
+//                        set_i2s_clk_path( 46,&cmd,0, 0 );
+//                        set_i2s_clk_path( 47,&cmd,0, 1 );
+//                        set_i2s_clk_path( 48,&cmd,0, 1 );
+//                        set_i2s_clk_path( 49,&cmd,0, 1 );
+                        
+//                      port2(r756)-->codec2(r752)
+//                      port2(r756)-->codec3(r744)
+                        set_i2s_clk_path( 45,&cmd,0, 0 );
+                        set_i2s_clk_path( 46,&cmd,1, 0 );
+                        set_i2s_clk_path( 47,&cmd,0, 0 );
+                        set_i2s_clk_path( 48,&cmd,0, 1 );
+                        set_i2s_clk_path( 49,&cmd,0, 1 );                        
+                                                
+                        memcpy( ( void *)&spi_buffer_master_tx,(void *)&cmd,sizeof( spi_buffer_master_tx ) );
+                        _spi_transfer_fpga_cmd( &cmd );
                         break;
                 case 'V':
                 case 'v':                        
@@ -820,14 +864,17 @@ int main(void)
 #else        
         while( 1 ) {
           
-          k = 10000;
-          while( k-- );
+//          k = 10000;
+//          while( k-- );
           
-          //act8865_write_reg(&act8865, 0x64, 0x39);
-          _spi_transfer();
+//          //act8865_write_reg(&act8865, 0x64, 0x39);
+//          _spi_transfer();
           
-          k = 10000;
-          while( k-- );
+//          k = 10000;
+//          while( k-- );
+        usb_state = USBD_GetState();
+        if (usb_state != usb_state_saved)
+        { //if usb state changed
         }
 #endif          
 }
