@@ -59,7 +59,7 @@
 /** Device vendor ID (Atmel). */
 #define CDCDSerialDriverDescriptors_VENDORID        0x03EB
 /** Device product ID. */
-#define CDCDSerialDriverDescriptors_PRODUCTID       0x6119
+#define CDCDSerialDriverDescriptors_PRODUCTID       0x9700
 /** Device release number. */
 #define CDCDSerialDriverDescriptors_RELEASE         0x0100
 /**      @}*/
@@ -122,7 +122,7 @@
  *         Exported variables
  *------------------------------------------------------------------------------*/
 
-/** Standard USB device descriptor for the CDC serial driver */
+//* Standard USB device descriptor for the CDC serial driver 
 const USBDeviceDescriptor deviceDescriptor = {
 
 	sizeof(USBDeviceDescriptor),
@@ -135,13 +135,13 @@ const USBDeviceDescriptor deviceDescriptor = {
 	CDCDSerialDriverDescriptors_VENDORID,
 	CDCDSerialDriverDescriptors_PRODUCTID,
 	CDCDSerialDriverDescriptors_RELEASE,
-	1, /* No string descriptor for manufacturer */
-	2, /* Index of product string descriptor is #1 */
-	3, /* No string descriptor for serial number */
-	1 /* Device has 1 possible configuration */
+	1, // No string descriptor for manufacturer 
+	2, // Index of product string descriptor is #1 
+	3, // No string descriptor for serial number 
+	1  // Device has 1 possible configuration 
 };
 
-/** Device qualifier descriptor (to pass USB test). */
+//* Device qualifier descriptor (to pass USB test). 
 static const USBDeviceQualifierDescriptor qualifierDescriptor = {
 
 	sizeof(USBDeviceQualifierDescriptor),
@@ -155,64 +155,64 @@ static const USBDeviceQualifierDescriptor qualifierDescriptor = {
 	0x00
 };
 
-/** Standard USB configuration descriptor for the CDC serial driver */
+//* Standard USB configuration descriptor for the CDC serial driver 
 const CDCDSerialDriverConfigurationDescriptors configurationDescriptorsFS = {
 
-	/* Standard configuration descriptor */
+	// Standard configuration descriptor 
 	{
 		sizeof(USBConfigurationDescriptor),
 		USBGenericDescriptor_CONFIGURATION,
 		sizeof(CDCDSerialDriverConfigurationDescriptors),
-		2, /* There are two interfaces in this configuration */
-		1, /* This is configuration #1 */
-		0, /* No string descriptor for this configuration */
+		2, // There are two interfaces in this configuration 
+		1, // This is configuration #1 
+		0, // No string descriptor for this configuration 
 		BOARD_USB_BMATTRIBUTES,
 		USBConfigurationDescriptor_POWER(100)
 	},
     //interface 0
-	/* Communication class interface standard descriptor */
+	// Communication class interface standard descriptor 
 	{
 		sizeof(USBInterfaceDescriptor),
 		USBGenericDescriptor_INTERFACE,
-		0, /* This is interface #0 */
-		0, /* This is alternate setting #0 for this interface */
-		1, /* This interface uses 1 endpoint */
+		0, // This is interface #0 
+		0, // This is alternate setting #0 for this interface 
+		1, // This interface uses 1 endpoint 
 		CDCCommunicationInterfaceDescriptor_CLASS,
 		CDCCommunicationInterfaceDescriptor_ABSTRACTCONTROLMODEL,
 		CDCCommunicationInterfaceDescriptor_NOPROTOCOL,
-		0  /* No string descriptor for this interface */
+		0  // No string descriptor for this interface 
 	},
-	/* Class-specific header functional descriptor */
+	// Class-specific header functional descriptor 
 	{
 		sizeof(CDCHeaderDescriptor),
 		CDCGenericDescriptor_INTERFACE,
 		CDCGenericDescriptor_HEADER,
 		CDCGenericDescriptor_CDC1_10
 	},
-	/* Class-specific call management functional descriptor */
+	// Class-specific call management functional descriptor 
 	{
 		sizeof(CDCCallManagementDescriptor),
 		CDCGenericDescriptor_INTERFACE,
 		CDCGenericDescriptor_CALLMANAGEMENT,
 		CDCCallManagementDescriptor_SELFCALLMANAGEMENT,
-		0 /* No associated data interface */
+		0 // No associated data interface 
 	},
-	/* Class-specific abstract control management functional descriptor */
+	// Class-specific abstract control management functional descriptor 
 	{
 		sizeof(CDCAbstractControlManagementDescriptor),
 		CDCGenericDescriptor_INTERFACE,
 		CDCGenericDescriptor_ABSTRACTCONTROLMANAGEMENT,
 		CDCAbstractControlManagementDescriptor_LINE
 	},
-	/* Class-specific union functional descriptor with one slave interface */
+	// Class-specific union functional descriptor with one slave interface 
 	{
 		sizeof(CDCUnionDescriptor),
 		CDCGenericDescriptor_INTERFACE,
 		CDCGenericDescriptor_UNION,
-		0, /* Number of master interface is #0 */
-		1 /* First slave interface is #1 */
+		0, // Number of master interface is #0 
+		1  // First slave interface is #1 
 	},
-	/* Notification endpoint standard descriptor */
+	// Notification endpoint standard descriptor 
 	{
 		sizeof(USBEndpointDescriptor),
 		USBGenericDescriptor_ENDPOINT,
@@ -221,20 +221,20 @@ const CDCDSerialDriverConfigurationDescriptors configurationDescriptorsFS = {
 		USBEndpointDescriptor_INTERRUPT,
 		MIN(CHIP_USB_ENDPOINT_MAXPACKETSIZE(CDCDSerialDriverDescriptors_NOTIFICATION),
 				USBEndpointDescriptor_MAXINTERRUPTSIZE_FS),
-		10 /* Endpoint is polled every 10ms */
+		10 // Endpoint is polled every 10ms 
 	},
     //interface 1
-	/* Data class interface standard descriptor */
+	// Data class interface standard descriptor 
 	{
 		sizeof(USBInterfaceDescriptor),
 		USBGenericDescriptor_INTERFACE,
-		1, /* This is interface #1 */
-		0, /* This is alternate setting #0 for this interface */
-		8, /* This interface uses 2 endpoints --changed to 8,exclude endpoint 1*/
-		CDCDataInterfaceDescriptor_CLASS,
-		CDCDataInterfaceDescriptor_SUBCLASS,
-		CDCDataInterfaceDescriptor_NOPROTOCOL,
-		0  /* No string descriptor for this interface */
+		1, // This is interface #1 
+		0, // This is alternate setting #0 for this interface 
+		8, // This interface uses 2 endpoints --changed to 8,exclude endpoint 1
+		0xFF,//CDCDataInterfaceDescriptor_CLASS,
+		0xFF,//CDCDataInterfaceDescriptor_SUBCLASS,
+		0xFF,//CDCDataInterfaceDescriptor_NOPROTOCOL,
+		0  // No string descriptor for this interface 
 	},
 	// Bulk-OUT endpoint standard descriptor 
 	{
@@ -268,7 +268,7 @@ const CDCDSerialDriverConfigurationDescriptors configurationDescriptorsFS = {
 		MIN(CHIP_USB_ENDPOINT_MAXPACKETSIZE(CDCDSerialDriverDescriptors_CMDDATAOUT),
 				USBEndpointDescriptor_MAXBULKSIZE_FS),
 		0 // Must be 0 for full-speed bulk endpoints 
-	}, */
+	},*/ 
 	// Bulk-IN endpoint descriptor 
 	{
 		sizeof(USBEndpointDescriptor),
@@ -336,63 +336,63 @@ const CDCDSerialDriverConfigurationDescriptors configurationDescriptorsFS = {
 	}        
 };
 
-/** Other-speed configuration descriptor (when in full-speed). */
+// Other-speed configuration descriptor (when in full-speed). 
 const CDCDSerialDriverConfigurationDescriptors otherSpeedDescriptorsFS = {
 
-	/* Standard configuration descriptor */
+	// Standard configuration descriptor 
 	{
 		sizeof(USBConfigurationDescriptor),
 		USBGenericDescriptor_OTHERSPEEDCONFIGURATION,
 		sizeof(CDCDSerialDriverConfigurationDescriptors),
-		2, /* There are two interfaces in this configuration */
-		1, /* This is configuration #1 */
-		0, /* No string descriptor for this configuration */
+		2, // There are two interfaces in this configuration 
+		1, // This is configuration #1 
+		0, // No string descriptor for this configuration 
 		BOARD_USB_BMATTRIBUTES,
 		USBConfigurationDescriptor_POWER(100)
 	},
-	/* Communication class interface standard descriptor */
+	// Communication class interface standard descriptor 
 	{
 		sizeof(USBInterfaceDescriptor),
 		USBGenericDescriptor_INTERFACE,
-		0, /* This is interface #0 */
-		0, /* This is alternate setting #0 for this interface */
-		1, /* This interface uses 1 endpoint */
+		0, // This is interface #0 
+		0, // This is alternate setting #0 for this interface 
+		1, // This interface uses 1 endpoint 
 		CDCCommunicationInterfaceDescriptor_CLASS,
 		CDCCommunicationInterfaceDescriptor_ABSTRACTCONTROLMODEL,
 		CDCCommunicationInterfaceDescriptor_NOPROTOCOL,
-		0  /* No string descriptor for this interface */
+		0  // No string descriptor for this interface 
 	},
-	/* Class-specific header functional descriptor */
+	// Class-specific header functional descriptor 
 	{
 		sizeof(CDCHeaderDescriptor),
 		CDCGenericDescriptor_INTERFACE,
 		CDCGenericDescriptor_HEADER,
 		CDCGenericDescriptor_CDC1_10
 	},
-	/* Class-specific call management functional descriptor */
+	// Class-specific call management functional descriptor 
 	{
 		sizeof(CDCCallManagementDescriptor),
 		CDCGenericDescriptor_INTERFACE,
 		CDCGenericDescriptor_CALLMANAGEMENT,
 		CDCCallManagementDescriptor_SELFCALLMANAGEMENT,
-		0 /* No associated data interface */
+		0 // No associated data interface 
 		},
-	/* Class-specific abstract control management functional descriptor */
+	// Class-specific abstract control management functional descriptor 
 	{
 		sizeof(CDCAbstractControlManagementDescriptor),
 		CDCGenericDescriptor_INTERFACE,
 		CDCGenericDescriptor_ABSTRACTCONTROLMANAGEMENT,
 		CDCAbstractControlManagementDescriptor_LINE
 	},
-	/* Class-specific union functional descriptor with one slave interface */
+	// Class-specific union functional descriptor with one slave interface 
 	{
 		sizeof(CDCUnionDescriptor),
 		CDCGenericDescriptor_INTERFACE,
 		CDCGenericDescriptor_UNION,
-		0, /* Number of master interface is #0 */
-		1 /* First slave interface is #1 */
+		0, // Number of master interface is #0 
+		1  // First slave interface is #1 
 	},
-	/* Notification endpoint standard descriptor */
+	// Notification endpoint standard descriptor 
 	{
 		sizeof(USBEndpointDescriptor),
 		USBGenericDescriptor_ENDPOINT,
@@ -401,21 +401,21 @@ const CDCDSerialDriverConfigurationDescriptors otherSpeedDescriptorsFS = {
 		USBEndpointDescriptor_INTERRUPT,
 		MIN(CHIP_USB_ENDPOINT_MAXPACKETSIZE(CDCDSerialDriverDescriptors_NOTIFICATION),
 				USBEndpointDescriptor_MAXINTERRUPTSIZE_FS),
-		8 /* Endpoint is polled every 16ms */
+		8 // Endpoint is polled every 16ms 
 	},
-	/* Data class interface standard descriptor */
+	// Data class interface standard descriptor 
 	{
 		sizeof(USBInterfaceDescriptor),
 		USBGenericDescriptor_INTERFACE,
-		1, /* This is interface #1 */
-		0, /* This is alternate setting #0 for this interface */
-		8, /* This interface uses 2 endpoints */
-		CDCDataInterfaceDescriptor_CLASS,
-		CDCDataInterfaceDescriptor_SUBCLASS,
-		CDCDataInterfaceDescriptor_NOPROTOCOL,
-		0  /* No string descriptor for this interface */
+		1, // This is interface #1 
+		0, // This is alternate setting #0 for this interface 
+		8, // This interface uses 2 endpoints 
+		0xFF,//CDCDataInterfaceDescriptor_CLASS,
+		0xFF,//CDCDataInterfaceDescriptor_SUBCLASS,
+		0xFF,//CDCDataInterfaceDescriptor_NOPROTOCOL,
+		0  // No string descriptor for this interface 
 	},
-	/* Bulk-OUT endpoint standard descriptor */
+	// Bulk-OUT endpoint standard descriptor 
 	{
 		sizeof(USBEndpointDescriptor),
 		USBGenericDescriptor_ENDPOINT,
@@ -424,9 +424,9 @@ const CDCDSerialDriverConfigurationDescriptors otherSpeedDescriptorsFS = {
 		USBEndpointDescriptor_BULK,
 		MIN(CHIP_USB_ENDPOINT_MAXPACKETSIZE(CDCDSerialDriverDescriptors_AUDIO_0_DATAOUT),
 				USBEndpointDescriptor_MAXBULKSIZE_HS),
-		0 /* Must be 0 for full-speed bulk endpoints */
+		0 // Must be 0 for full-speed bulk endpoints 
 	},
-	/* Bulk-IN endpoint descriptor */
+	// Bulk-IN endpoint descriptor 
 	{
 		sizeof(USBEndpointDescriptor),
 		USBGenericDescriptor_ENDPOINT,
@@ -435,7 +435,7 @@ const CDCDSerialDriverConfigurationDescriptors otherSpeedDescriptorsFS = {
 		USBEndpointDescriptor_BULK,
 		MIN(CHIP_USB_ENDPOINT_MAXPACKETSIZE(CDCDSerialDriverDescriptors_AUDIO_0_DATAIN),
 				USBEndpointDescriptor_MAXBULKSIZE_HS),
-		0 /* Must be 0 for full-speed bulk endpoints */
+		0 // Must be 0 for full-speed bulk endpoints 
 	},
 	// Bulk-IN endpoint descriptor 
 	{
@@ -505,63 +505,63 @@ const CDCDSerialDriverConfigurationDescriptors otherSpeedDescriptorsFS = {
 	}                  
 };
 
-/** Configuration descriptor (when in high-speed). */
+//* Configuration descriptor (when in high-speed). 
 const CDCDSerialDriverConfigurationDescriptors configurationDescriptorsHS = {
 
-	/* Standard configuration descriptor */
+	// Standard configuration descriptor 
 	{
 		sizeof(USBConfigurationDescriptor),
 		USBGenericDescriptor_CONFIGURATION,
 		sizeof(CDCDSerialDriverConfigurationDescriptors),
-		2, /* There are two interfaces in this configuration */
-		1, /* This is configuration #1 */
-		0, /* No string descriptor for this configuration */
+		2, // There are two interfaces in this configuration 
+		1, // This is configuration #1 
+		0, // No string descriptor for this configuration 
 		BOARD_USB_BMATTRIBUTES,
 		USBConfigurationDescriptor_POWER(100)
 	},
-	/* Communication class interface standard descriptor */
+	// Communication class interface standard descriptor 
 	{
 		sizeof(USBInterfaceDescriptor),
 		USBGenericDescriptor_INTERFACE,
-		0, /* This is interface #0 */
-		0, /* This is alternate setting #0 for this interface */
-		1, /* This interface uses 1 endpoint */
+		0, // This is interface #0 
+		0, // This is alternate setting #0 for this interface 
+		1, // This interface uses 1 endpoint 
 		CDCCommunicationInterfaceDescriptor_CLASS,
 		CDCCommunicationInterfaceDescriptor_ABSTRACTCONTROLMODEL,
 		CDCCommunicationInterfaceDescriptor_NOPROTOCOL,
-		0  /* No string descriptor for this interface */
+		0  // No string descriptor for this interface 
 	},
-	/* Class-specific header functional descriptor */
+	// Class-specific header functional descriptor 
 	{
 		sizeof(CDCHeaderDescriptor),
 		CDCGenericDescriptor_INTERFACE,
 		CDCGenericDescriptor_HEADER,
 		CDCGenericDescriptor_CDC1_10
 	},
-	/* Class-specific call management functional descriptor */
+	// Class-specific call management functional descriptor 
 	{
 		sizeof(CDCCallManagementDescriptor),
 		CDCGenericDescriptor_INTERFACE,
 		CDCGenericDescriptor_CALLMANAGEMENT,
 		CDCCallManagementDescriptor_SELFCALLMANAGEMENT,
-		0 /* No associated data interface */
+		0 // No associated data interface 
 	},
-	/* Class-specific abstract control management functional descriptor */
+	// Class-specific abstract control management functional descriptor 
 	{
 		sizeof(CDCAbstractControlManagementDescriptor),
 		CDCGenericDescriptor_INTERFACE,
 		CDCGenericDescriptor_ABSTRACTCONTROLMANAGEMENT,
 		CDCAbstractControlManagementDescriptor_LINE
 	},
-	/* Class-specific union functional descriptor with one slave interface */
+	// Class-specific union functional descriptor with one slave interface 
 	{
 		sizeof(CDCUnionDescriptor),
 		CDCGenericDescriptor_INTERFACE,
 		CDCGenericDescriptor_UNION,
-		0, /* Number of master interface is #0 */
-		1 /* First slave interface is #1 */
+		0, // Number of master interface is #0 
+		1 // First slave interface is #1 
 	},
-	/* Notification endpoint standard descriptor */
+	// Notification endpoint standard descriptor 
 	{
 		sizeof(USBEndpointDescriptor),
 		USBGenericDescriptor_ENDPOINT,
@@ -570,21 +570,21 @@ const CDCDSerialDriverConfigurationDescriptors configurationDescriptorsHS = {
 		USBEndpointDescriptor_INTERRUPT,
 		MIN(CHIP_USB_ENDPOINT_MAXPACKETSIZE(CDCDSerialDriverDescriptors_NOTIFICATION),
 				USBEndpointDescriptor_MAXINTERRUPTSIZE_FS),
-		8  /* Endpoint is polled every 16ms */
+		8  // Endpoint is polled every 16ms 
 	},
-	/* Data class interface standard descriptor */
+	// Data class interface standard descriptor 
 	{
 		sizeof(USBInterfaceDescriptor),
 		USBGenericDescriptor_INTERFACE,
-		1, /* This is interface #1 */
-		0, /* This is alternate setting #0 for this interface */
-		8, /* This interface uses 2 endpoints */
-		CDCDataInterfaceDescriptor_CLASS,
-		CDCDataInterfaceDescriptor_SUBCLASS,
-		CDCDataInterfaceDescriptor_NOPROTOCOL,
-		0  /* No string descriptor for this interface */
+		1, // This is interface #1 
+		0, // This is alternate setting #0 for this interface 
+		8, // This interface uses 2 endpoints 
+		0xFF,//CDCDataInterfaceDescriptor_CLASS,
+		0xFF,//CDCDataInterfaceDescriptor_SUBCLASS,
+		0xFF,//CDCDataInterfaceDescriptor_NOPROTOCOL,
+		0  // No string descriptor for this interface 
 	},
-	/* Bulk-OUT endpoint standard descriptor */
+	// Bulk-OUT endpoint standard descriptor 
 	{
 		sizeof(USBEndpointDescriptor),
 		USBGenericDescriptor_ENDPOINT,
@@ -593,9 +593,9 @@ const CDCDSerialDriverConfigurationDescriptors configurationDescriptorsHS = {
 		USBEndpointDescriptor_BULK,
 		MIN(CHIP_USB_ENDPOINT_MAXPACKETSIZE(CDCDSerialDriverDescriptors_AUDIO_0_DATAOUT),
 				USBEndpointDescriptor_MAXBULKSIZE_HS),
-		0 /* Must be 0 for full-speed bulk endpoints */
+		0 // Must be 0 for full-speed bulk endpoints 
 	},
-	/* Bulk-IN endpoint descriptor */
+	// Bulk-IN endpoint descriptor 
 	{
 		sizeof(USBEndpointDescriptor),
 		USBGenericDescriptor_ENDPOINT,
@@ -604,7 +604,7 @@ const CDCDSerialDriverConfigurationDescriptors configurationDescriptorsHS = {
 		USBEndpointDescriptor_BULK,
 		MIN(CHIP_USB_ENDPOINT_MAXPACKETSIZE(CDCDSerialDriverDescriptors_AUDIO_0_DATAIN),
 				USBEndpointDescriptor_MAXBULKSIZE_HS),
-		0 /* Must be 0 for full-speed bulk endpoints */
+		0 // Must be 0 for full-speed bulk endpoints 
 	},
 	// Bulk-IN endpoint descriptor 
 	{
@@ -674,63 +674,63 @@ const CDCDSerialDriverConfigurationDescriptors configurationDescriptorsHS = {
 	}          
 };
 
-/** Other-speed configuration descriptor (when in high-speed). */
+/// Other-speed configuration descriptor (when in high-speed). 
 const CDCDSerialDriverConfigurationDescriptors otherSpeedDescriptorsHS = {
 
-	/* Standard configuration descriptor */
+	// Standard configuration descriptor 
 	{
 		sizeof(USBConfigurationDescriptor),
 		USBGenericDescriptor_OTHERSPEEDCONFIGURATION,
 		sizeof(CDCDSerialDriverConfigurationDescriptors),
-		2, /* There are two interfaces in this configuration */
-		1, /* This is configuration #1 */
-		0, /* No string descriptor for this configuration */
+		2, // There are two interfaces in this configuration 
+		1, // This is configuration #1 
+		0, // No string descriptor for this configuration 
 		BOARD_USB_BMATTRIBUTES,
 		USBConfigurationDescriptor_POWER(100)
 	},
-	/* Communication class interface standard descriptor */
+	// Communication class interface standard descriptor 
 	{
 		sizeof(USBInterfaceDescriptor),
 		USBGenericDescriptor_INTERFACE,
-		0, /* This is interface #0 */
-		0, /* This is alternate setting #0 for this interface */
-		1, /* This interface uses 1 endpoint */
+		0, // This is interface #0 
+		0, // This is alternate setting #0 for this interface 
+		1, // This interface uses 1 endpoint 
 		CDCCommunicationInterfaceDescriptor_CLASS,
 		CDCCommunicationInterfaceDescriptor_ABSTRACTCONTROLMODEL,
 		CDCCommunicationInterfaceDescriptor_NOPROTOCOL,
-		0  /* No string descriptor for this interface */
+		0  // No string descriptor for this interface 
 		},
-	/* Class-specific header functional descriptor */
+	// Class-specific header functional descriptor 
 	{
 		sizeof(CDCHeaderDescriptor),
 		CDCGenericDescriptor_INTERFACE,
 		CDCGenericDescriptor_HEADER,
 		CDCGenericDescriptor_CDC1_10
 	},
-	/* Class-specific call management functional descriptor */
+	// Class-specific call management functional descriptor 
 	{
 		sizeof(CDCCallManagementDescriptor),
 		CDCGenericDescriptor_INTERFACE,
 		CDCGenericDescriptor_CALLMANAGEMENT,
 		CDCCallManagementDescriptor_SELFCALLMANAGEMENT,
-		0 /* No associated data interface */
+		0 // No associated data interface 
 	},
-	/* Class-specific abstract control management functional descriptor */
+	// Class-specific abstract control management functional descriptor 
 	{
 		sizeof(CDCAbstractControlManagementDescriptor),
 		CDCGenericDescriptor_INTERFACE,
 		CDCGenericDescriptor_ABSTRACTCONTROLMANAGEMENT,
 		CDCAbstractControlManagementDescriptor_LINE
 	},
-	/* Class-specific union functional descriptor with one slave interface */
+	// Class-specific union functional descriptor with one slave interface 
 	{
 		sizeof(CDCUnionDescriptor),
 		CDCGenericDescriptor_INTERFACE,
 		CDCGenericDescriptor_UNION,
-		0, /* Number of master interface is #0 */
-		1 /* First slave interface is #1 */
+		0, // Number of master interface is #0 
+		1 // First slave interface is #1 
 	},
-	/* Notification endpoint standard descriptor */
+	// Notification endpoint standard descriptor 
 	{
 		sizeof(USBEndpointDescriptor),
 		USBGenericDescriptor_ENDPOINT,
@@ -739,21 +739,21 @@ const CDCDSerialDriverConfigurationDescriptors otherSpeedDescriptorsHS = {
 		USBEndpointDescriptor_INTERRUPT,
 		MIN(CHIP_USB_ENDPOINT_MAXPACKETSIZE(CDCDSerialDriverDescriptors_NOTIFICATION),
 				USBEndpointDescriptor_MAXINTERRUPTSIZE_FS),
-		10 /* Endpoint is polled every 10ms */
+		10 // Endpoint is polled every 10ms 
 	},
-	/* Data class interface standard descriptor */
+	// Data class interface standard descriptor 
 	{
 		sizeof(USBInterfaceDescriptor),
 		USBGenericDescriptor_INTERFACE,
-		1, /* This is interface #1 */
-		0, /* This is alternate setting #0 for this interface */
-		8, /* This interface uses 2 endpoints */
-		CDCDataInterfaceDescriptor_CLASS,
-		CDCDataInterfaceDescriptor_SUBCLASS,
-		CDCDataInterfaceDescriptor_NOPROTOCOL,
-		0  /* No string descriptor for this interface */
+		1, // This is interface #1 
+		0, // This is alternate setting #0 for this interface 
+		8, // This interface uses 2 endpoints 
+		0xFF,//CDCDataInterfaceDescriptor_CLASS,
+		0xFF,//CDCDataInterfaceDescriptor_SUBCLASS,
+		0xFF,//CDCDataInterfaceDescriptor_NOPROTOCOL,
+		0  // No string descriptor for this interface 
 	},
-	/* Bulk-OUT endpoint standard descriptor */
+	// Bulk-OUT endpoint standard descriptor 
 	{
 		sizeof(USBEndpointDescriptor),
 		USBGenericDescriptor_ENDPOINT,
@@ -762,9 +762,9 @@ const CDCDSerialDriverConfigurationDescriptors otherSpeedDescriptorsHS = {
 		USBEndpointDescriptor_BULK,
 		MIN(CHIP_USB_ENDPOINT_MAXPACKETSIZE(CDCDSerialDriverDescriptors_AUDIO_0_DATAOUT),
 				USBEndpointDescriptor_MAXBULKSIZE_FS),
-		0 /* Must be 0 for full-speed bulk endpoints */
+		0 // Must be 0 for full-speed bulk endpoints 
 	},
-	/* Bulk-IN endpoint descriptor */
+	// Bulk-IN endpoint descriptor 
 	{
 		sizeof(USBEndpointDescriptor),
 		USBGenericDescriptor_ENDPOINT,
@@ -773,7 +773,7 @@ const CDCDSerialDriverConfigurationDescriptors otherSpeedDescriptorsHS = {
 		USBEndpointDescriptor_BULK,
 		MIN(CHIP_USB_ENDPOINT_MAXPACKETSIZE(CDCDSerialDriverDescriptors_AUDIO_0_DATAIN),
 				USBEndpointDescriptor_MAXBULKSIZE_FS),
-		0 /* Must be 0 for full-speed bulk endpoints */
+		0 // Must be 0 for full-speed bulk endpoints 
 	},
 	// Bulk-IN endpoint descriptor 
 	{
@@ -843,7 +843,7 @@ const CDCDSerialDriverConfigurationDescriptors otherSpeedDescriptorsHS = {
 	}           
 };
 
-/** Language ID string descriptor */
+/// Language ID string descriptor 
 const unsigned char languageIdStringDescriptor[] = {
 
 	USBStringDescriptor_LENGTH(1),
@@ -1037,7 +1037,7 @@ const unsigned char *stringDescriptors[] = {
     OSExPropertyDescriptor
  };
 
-/** List of standard descriptors for the serial driver. */
+/// List of standard descriptors for the serial driver. 
 WEAK const USBDDriverDescriptors cdcd_serial_driver_descriptors = {
 
 	&deviceDescriptor,
